@@ -7,6 +7,7 @@ import {
   Repository,
 } from '../models/repository'
 import { IBranchesState } from './app-state'
+import { getRemoteHEAD } from './git'
 
 /**
  * Finds the default branch of the upstream repository of the passed repository.
@@ -18,10 +19,10 @@ import { IBranchesState } from './app-state'
  * @param repository The repository to use.
  * @param branches all the branches in the local repo.
  */
-export function findDefaultUpstreamBranch(
+export async function findDefaultUpstreamBranch(
   repository: RepositoryWithGitHubRepository,
   branches: ReadonlyArray<Branch>
-): Branch | null {
+): Promise<Branch | null> {
   const githubRepository = getNonForkGitHubRepository(repository)
 
   // This is a bit hacky... we checked if the result of calling
@@ -36,10 +37,12 @@ export function findDefaultUpstreamBranch(
     return null
   }
 
+  const remoteHEAD = await getRemoteHEAD(repository, UpstreamRemoteName)
+
   const foundBranch = branches.find(
     b =>
       b.type === BranchType.Remote &&
-      b.name === `${UpstreamRemoteName}/${repository.defaultBranch}`
+      b.name === `${UpstreamRemoteName}/${remoteHEAD}`
   )
 
   return foundBranch !== undefined ? foundBranch : null
@@ -56,11 +59,12 @@ export function findDefaultUpstreamBranch(
  *
  * Otherwise, this method will return the default branch of the passed in repository.
  */
-export function findContributionTargetDefaultBranch(
+export async function findContributionTargetDefaultBranch(
   repository: Repository,
   { allBranches, defaultBranch }: IBranchesState
-): Branch | null {
+): Promise<Branch | null> {
   return isRepositoryWithGitHubRepository(repository)
-    ? findDefaultUpstreamBranch(repository, allBranches) ?? defaultBranch
+    ? (await findDefaultUpstreamBranch(repository, allBranches)) ??
+        defaultBranch
     : defaultBranch
 }

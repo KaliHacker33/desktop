@@ -32,7 +32,6 @@ import { isRepositoryWithForkedGitHubRepository } from '../../models/repository'
 interface ICreateBranchProps {
   readonly repository: Repository
   readonly targetCommit?: CommitOneLine
-  readonly upstreamGitHubRepository: GitHubRepository | null
   readonly dispatcher: Dispatcher
   readonly onBranchCreatedFromCommit?: () => void
   readonly onDismissed: () => void
@@ -48,7 +47,6 @@ interface ICreateBranchProps {
   ) => void
   readonly tip: IUnbornRepository | IDetachedHead | IValidBranch
   readonly defaultBranch: Branch | null
-  readonly upstreamDefaultBranch: Branch | null
   readonly allBranches: ReadonlyArray<Branch>
   readonly initialName: string
   /**
@@ -94,6 +92,9 @@ interface ICreateBranchState {
    * start of the create branch operation.
    */
   readonly defaultBranchAtCreateStart: Branch | null
+
+  readonly upstreamGitHubRepository: GitHubRepository | null
+  readonly upstreamDefaultBranch: Branch | null
 }
 
 /** The Create Branch component. */

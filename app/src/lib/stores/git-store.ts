@@ -63,7 +63,6 @@ import {
   getAheadBehind,
   revRange,
   revSymmetricDifference,
-  getSymbolicRef,
   getConfigValue,
   removeRemote,
   createTag,
@@ -72,6 +71,7 @@ import {
   MergeResult,
   createBranch,
   updateRemoteHEAD,
+  getRemoteHEAD,
 } from '../git'
 import { GitError as DugiteError } from '../../lib/git'
 import { GitError } from 'dugite'
@@ -516,20 +516,12 @@ export class GitStore extends BaseStore {
       // the Git server should use [remote]/HEAD to advertise
       // it's default branch, so see if it exists and matches
       // a valid branch on the remote and attempt to use that
-      const remoteNamespace = `refs/remotes/${this.currentRemote.name}/`
-      const match = await getSymbolicRef(
+      const branchName = await getRemoteHEAD(
         this.repository,
-        `${remoteNamespace}HEAD`
+        this.currentRemote.name
       )
-      if (
-        match != null &&
-        match.length > remoteNamespace.length &&
-        match.startsWith(remoteNamespace)
-      ) {
-        // strip out everything related to the remote because this
-        // is likely to be a tracked branch locally
-        // e.g. `main`, `develop`, etc
-        return match.substring(remoteNamespace.length)
+      if (branchName !== null) {
+        return branchName
       }
     }
 

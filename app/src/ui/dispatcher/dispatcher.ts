@@ -2648,7 +2648,7 @@ export class Dispatcher {
   }
 
   /** Hide the diff for stashed changes */
-  public hideStashedChanges(repository: Repository) {
+  public async hideStashedChanges(repository: Repository) {
     return this.appStore._hideStashedChanges(repository)
   }
 
@@ -3230,7 +3230,7 @@ export class Dispatcher {
       ? getNonForkGitHubRepository(repository as RepositoryWithGitHubRepository)
       : null
     const upstreamDefaultBranch = isGHRepo
-      ? findDefaultUpstreamBranch(
+      ? await findDefaultUpstreamBranch(
           repository as RepositoryWithGitHubRepository,
           allBranches
         )
